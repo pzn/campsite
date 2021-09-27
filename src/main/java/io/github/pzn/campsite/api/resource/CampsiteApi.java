@@ -19,6 +19,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import io.github.pzn.campsite.api.model.req.ModifyReservationRequest;
@@ -58,6 +60,11 @@ public class CampsiteApi {
   @GET
   @Path("/availabilities")
   @Tag(name = AVAILABILITIES_TAG)
+  @APIResponses({
+          @APIResponse(responseCode = "200", description = "OK"),
+          @APIResponse(responseCode = "400", description = "User request malformed or invalid"),
+          @APIResponse(responseCode = "500", description = "Unexpected error")
+  })
   public SeeAvailabilitiesResponse seeAvailabilities(
       @Valid @BeanParam SeeAvailabilitiesRequest req) {
     req = campsiteApiVerificationService.transformWithDefaultValuesWhenRequired(req);
@@ -72,6 +79,11 @@ public class CampsiteApi {
   @POST
   @Path("/reservation")
   @Tag(name = BOOKING_TAG)
+  @APIResponses({
+          @APIResponse(responseCode = "200", description = "Reservation placed"),
+          @APIResponse(responseCode = "400", description = "User request malformed or invalid"),
+          @APIResponse(responseCode = "500", description = "Unexpected error")
+  })
   public PlaceReservationResponse placeReservation(@Valid PlaceReservationRequest req) {
     campsiteApiVerificationService.verifyPlaceReservationRequest(req);
 
@@ -86,6 +98,11 @@ public class CampsiteApi {
   @PATCH
   @Path("/reservation/{reservationIdentifier}")
   @Tag(name = BOOKING_TAG)
+  @APIResponses({
+          @APIResponse(responseCode = "200", description = "Reservation updated"),
+          @APIResponse(responseCode = "400", description = "User request malformed or invalid"),
+          @APIResponse(responseCode = "500", description = "Unexpected error")
+  })
   public ModifyReservationResponse modifyReservation(
       @PathParam("reservationIdentifier") @NotEmpty String reservationIdentifier,
       @Valid ModifyReservationRequest req) {
@@ -100,6 +117,11 @@ public class CampsiteApi {
   @DELETE
   @Path("/reservation/{reservationIdentifier}")
   @Tag(name = BOOKING_TAG)
+  @APIResponses({
+          @APIResponse(responseCode = "204", description = "Reservation cancelled"),
+          @APIResponse(responseCode = "400", description = "User request malformed or invalid"),
+          @APIResponse(responseCode = "500", description = "Unexpected error")
+  })
   public void deleteReservation(
       @PathParam("reservationIdentifier") @NotEmpty String reservationIdentifier) {
     campsiteApiVerificationService.verifyDeleteReservationRequest(reservationIdentifier);
