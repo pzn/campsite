@@ -1,28 +1,17 @@
 package io.github.pzn.campsite.booking.model.entity;
 
-import static javax.persistence.CascadeType.ALL;
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.SEQUENCE;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import static javax.persistence.CascadeType.ALL;
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity(name = "bookings")
 @Builder
@@ -33,8 +22,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 public class BookingEntity {
 
   @Id
-  @GeneratedValue(strategy = SEQUENCE, generator = "b_generator")
-  @SequenceGenerator(name = "b_generator", sequenceName = "bookings_id_seq")
+  @GeneratedValue(strategy = SEQUENCE, generator = "bookings_id_seq")
   private Long id;
   @CreationTimestamp
   @Column(name = "created_on")
