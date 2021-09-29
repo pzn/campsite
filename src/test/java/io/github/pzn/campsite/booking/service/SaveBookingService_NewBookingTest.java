@@ -6,7 +6,6 @@ import io.github.pzn.campsite.booking.model.vo.NewBookingVO;
 import io.github.pzn.test.datafixture.BookingEntityDbFixture;
 import io.github.pzn.test.datafixture.BookingLockEntityDbFixture;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.transaction.RollbackException;
@@ -20,15 +19,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 
 @QuarkusTest
-@Disabled
 public class SaveBookingService_NewBookingTest extends SaveBookingServiceBaseTest {
 
 	@Test
-	public void can_newBooking__happy_path() throws Exception {
+	public void can_newBooking__happy_path() {
 		initializeDatabase();
 		givenValidationPasses();
 
-		String reservationIdentifier = executeWithinTransaction(() -> saveBookingService.newBooking(aNewBookingVO()));
+		String reservationIdentifier = saveBookingService.newBooking(aNewBookingVO());
 
 		assertThat(reservationIdentifier).isNotEmpty();
 	}
@@ -38,8 +36,7 @@ public class SaveBookingService_NewBookingTest extends SaveBookingServiceBaseTes
 		initializeDatabase();
 		givenValidationDoesNotPass();
 
-		assertThatThrownBy(() -> executeWithinTransaction(
-						() -> saveBookingService.newBooking(aNewBookingVO())))
+		assertThatThrownBy(() -> saveBookingService.newBooking(aNewBookingVO()))
 						.isInstanceOf(RuntimeException.class);
 	}
 
@@ -54,9 +51,8 @@ public class SaveBookingService_NewBookingTest extends SaveBookingServiceBaseTes
 						BookingLockEntityDbFixture.insert(aBookingLockEntity(secondDay, existingBookingEntity)));
 		givenValidationPasses();
 
-		assertThatThrownBy(() -> executeWithinTransaction(
-						() -> saveBookingService.newBooking(aNewBookingVO("another-email", firstDay, secondDay))))
-						.isInstanceOf(RollbackException.class);
+		assertThatThrownBy(() -> saveBookingService.newBooking(aNewBookingVO("another-email", firstDay, secondDay)))
+						.hasCauseInstanceOf(RollbackException.class);
 	}
 
 	private NewBookingVO aNewBookingVO() {

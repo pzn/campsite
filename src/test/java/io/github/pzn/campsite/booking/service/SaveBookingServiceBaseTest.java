@@ -1,23 +1,5 @@
 package io.github.pzn.campsite.booking.service;
 
-import static com.ninja_squad.dbsetup.Operations.sequenceOf;
-import static io.github.pzn.test.datafixture.BookingEntityDbFixture.DELETE_BOOKINGS;
-import static io.github.pzn.test.datafixture.BookingLockEntityDbFixture.DELETE_BOOKING_LOCKS;
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang3.ArrayUtils.isEmpty;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
-import javax.inject.Inject;
-import javax.sql.DataSource;
-import javax.transaction.UserTransaction;
-import javax.validation.constraints.NotNull;
-
 import com.ninja_squad.dbsetup.DbSetup;
 import com.ninja_squad.dbsetup.destination.DataSourceDestination;
 import com.ninja_squad.dbsetup.operation.Operation;
@@ -27,6 +9,22 @@ import io.github.pzn.campsite.booking.model.vo.NewBookingVO;
 import io.github.pzn.test.quarkus.PostgresTestContainersQuarkusTestResource;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.mockito.InjectMock;
+
+import javax.inject.Inject;
+import javax.sql.DataSource;
+import javax.transaction.UserTransaction;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.ninja_squad.dbsetup.Operations.sequenceOf;
+import static io.github.pzn.test.datafixture.BookingEntityDbFixture.DELETE_BOOKINGS;
+import static io.github.pzn.test.datafixture.BookingLockEntityDbFixture.DELETE_BOOKING_LOCKS;
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.ArrayUtils.isEmpty;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 
 @QuarkusTestResource(PostgresTestContainersQuarkusTestResource.class)
 abstract class SaveBookingServiceBaseTest {
@@ -72,24 +70,5 @@ abstract class SaveBookingServiceBaseTest {
 			doThrow(RuntimeException.class)
 				.when(bookingVerificationService).verifyCanUpdateBooking(any(AlterBookingVO.class), any(BookingVO.class));
 		}
-	}
-
-	protected <T> T executeWithinTransaction(Supplier<T> supplier) throws Exception {
-		try {
-			userTransaction.begin();
-			return supplier.get();
-		} catch (Exception e) {
-			userTransaction.rollback();
-			throw e;
-		} finally {
-			userTransaction.commit();
-		}
-	}
-
-	protected void executeWithinTransaction(Runnable runnable) throws Exception {
-		executeWithinTransaction(() -> {
-			runnable.run();
-			return null;
-		});
 	}
 }

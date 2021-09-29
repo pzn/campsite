@@ -7,6 +7,7 @@ import io.github.pzn.campsite.booking.model.vo.AlterBookingVO;
 import io.github.pzn.test.datafixture.BookingEntityDbFixture;
 import io.github.pzn.test.datafixture.BookingLockEntityDbFixture;
 import io.quarkus.test.junit.QuarkusTest;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.transaction.RollbackException;
@@ -21,14 +22,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class SaveBookingService_UpdateBookingTest extends SaveBookingServiceBaseTest {
 
 	@Test
-	public void can_updateBooking__happy_path() throws Exception {
+	public void can_updateBooking__happy_path() {
 		LocalDate firstDay = LocalDate.of(2020, JANUARY, 1);
 		LocalDate secondDay = firstDay.plus(1, DAYS);
 		initializeDatabase(
 			BookingEntityDbFixture.insert(aBookingEntity("email", "reservationIdentifier", firstDay, secondDay)));
 		givenValidationPasses();
 
-		executeWithinTransaction(() -> saveBookingService.updateBooking("reservationIdentifier", anAlterBookingVO(firstDay, secondDay)));
+		saveBookingService.updateBooking("reservationIdentifier", anAlterBookingVO(firstDay, secondDay));
 	}
 
 	@Test
@@ -36,20 +37,18 @@ public class SaveBookingService_UpdateBookingTest extends SaveBookingServiceBase
 		initializeDatabase();
 		givenValidationDoesNotPass();
 
-		executeWithinTransaction(() ->
-						assertThatThrownBy(() -> saveBookingService.updateBooking("reservationIdentifier", anAlterBookingVO()))
-			.isInstanceOf(ReservationNotFoundException.class));
+		assertThatThrownBy(() -> saveBookingService.updateBooking("reservationIdentifier", anAlterBookingVO()))
+			.isInstanceOf(ReservationNotFoundException.class);
 	}
 
 	@Test
-	public void cannot_updateBooking__validation_does_not_pass__shall_expect_exception() throws Exception {
+	public void cannot_updateBooking__validation_does_not_pass__shall_expect_exception() {
 		initializeDatabase(
 			BookingEntityDbFixture.insert(aBookingEntity("email", "reservationIdentifier", LocalDate.now(), LocalDate.now())));
 		givenValidationDoesNotPass();
 
-    executeWithinTransaction(() ->
-            assertThatThrownBy(() -> saveBookingService.updateBooking("reservationIdentifier", anAlterBookingVO()))
-			.isInstanceOf(Exception.class));
+    assertThatThrownBy(() -> saveBookingService.updateBooking("reservationIdentifier", anAlterBookingVO()))
+			.isInstanceOf(Exception.class);
 	}
 
 	@Test
@@ -63,9 +62,9 @@ public class SaveBookingService_UpdateBookingTest extends SaveBookingServiceBase
 			BookingLockEntityDbFixture.insert(aBookingLockEntity(secondDay, existingBookingEntity)));
 		givenValidationPasses();
 
-		assertThatThrownBy(() -> executeWithinTransaction(
-						() -> saveBookingService.updateBooking("reservationIdentifier", anAlterBookingVO(firstDay, secondDay))))
-						.isInstanceOf(RollbackException.class);
+		Assertions.setMaxStackTraceElementsDisplayed(5000);
+		assertThatThrownBy(() -> saveBookingService.updateBooking("reservationIdentifier", anAlterBookingVO(firstDay, secondDay)))
+						.hasCauseInstanceOf(RollbackException.class);
 	}
 
 	private AlterBookingVO anAlterBookingVO() {

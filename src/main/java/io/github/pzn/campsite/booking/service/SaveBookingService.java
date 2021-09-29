@@ -51,9 +51,12 @@ public class SaveBookingService {
 
     lockNewDates(newBookingEntity.getArrival(), newBookingEntity.getDeparture(), newBookingEntity);
 
+    bookingRepository.persist(newBookingEntity);
+
     return reservationIdentifier;
   }
 
+  @Transactional
   public void updateBooking(
       @NotNull String reservationIdentifier, @NotNull AlterBookingVO alterBookingVO) {
     BookingEntity existingBookingEntity = requireByReservationIdentifier(reservationIdentifier);
